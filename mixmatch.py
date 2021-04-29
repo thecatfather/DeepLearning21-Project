@@ -5,7 +5,7 @@ Every part of the algorithm corresponds to a function in the class.
 
 
 class MixMatch:
-    def augment(self):
+    def augment(self, U, K):
         print("TODO: Insert your implementation here")
 
     def guessLabel(self):

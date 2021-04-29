@@ -130,3 +130,6 @@ dmypy.json
 
 # Pycharm
 .idea/
+
+# do not store datasets on git
+datasets/
