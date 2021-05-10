@@ -7,8 +7,8 @@ model_params = {
     "n_validation": 500,
     "K": 2
 }
-augmented_labeled_X, augmented_unlabeled_X, train_labeled_targets, train_unlabeled_targets = \
-    data.load_and_augment_data('CIFAR10', model_params)
+augmented_labeled_X, augmented_unlabeled_X, train_labeled_targets, train_unlabeled_targets, \
+    validation_images, validation_targets = data.load_and_augment_data('CIFAR10', model_params)
 
 print(augmented_labeled_X.size())
 print(augmented_unlabeled_X.size())

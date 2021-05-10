@@ -54,6 +54,29 @@ def split_indexes(n_classes, n_labeled_per_class, n_validation, labels):
     return train_labeled_indexes, train_unlabeled_indexes, validation_indexes
 
 
+def to_tensor_dim(x, source='NHWC', target='NCHW'):
+    return x.transpose([source.index(d) for d in target])
+
+
+def normalise(X):
+    mean = np.mean(X, axis=(0, 1, 2))
+    std = np.std(X, axis=(0, 1, 2))
+    X, mean, std = [np.array(a, np.float32) for a in (X, mean, std)]
+    X -= mean
+    X *= 1.0 / std
+    return X
+
+
+def normalise2(X):
+    x = X.copy()
+    mean = np.mean(x, axis=(0, 1, 2)) / 255
+    std = np.std(x, axis=(0, 1, 2)) / 255
+    x, mean, std = [np.array(a, np.float32) for a in (x, mean, std)]
+    x -= mean * 255
+    x *= 1.0 / (255 * std)
+    return x
+
+
 def random_flip(x):
     if np.random.rand() < 0.6:
         x = x[:, ::-1, :]
@@ -126,8 +149,14 @@ def load_and_augment_data(dataset_name, model_params):
     target_array = np.asarray(dataset.targets)
     train_labeled_targets = np.take(target_array, train_labeled_indexes, axis=0)
     train_unlabeled_targets = np.take(target_array, train_unlabeled_indexes, axis=0)
+    validation_images = np.take(dataset.data, validation_indexes, axis=0)
+    validation_targets = np.take(target_array, validation_indexes, axis=0)
 
-    # Step 5: Augment training images
+    # Step 5: Normalise the datasets
+    train_labeled_images = normalise(train_labeled_images)
+    train_unlabeled_images = normalise(train_unlabeled_images)
+
+    # Step 6: Augment training images
     augmented_labeled_X = augment(train_labeled_images, K=1)
     augmented_unlabeled_X = augment(train_unlabeled_images, K=K)
 
@@ -141,5 +170,11 @@ def load_and_augment_data(dataset_name, model_params):
     #               augmented_images=augmented_unlabeled_X[n_unlabeled:10+n_unlabeled],
     #               labels=train_unlabeled_targets[:10])
 
+    # Step 7: Change the dimension of np.array in oder for it to work in torch
+    augmented_labeled_X = to_tensor_dim(augmented_labeled_X)
+    augmented_unlabeled_X = to_tensor_dim(augmented_unlabeled_X)
+    validation_images = to_tensor_dim(validation_images)
+
     return torch.from_numpy(augmented_labeled_X), torch.from_numpy(augmented_unlabeled_X), \
-           torch.from_numpy(train_labeled_targets), torch.from_numpy(train_unlabeled_targets)
+           torch.from_numpy(train_labeled_targets), torch.from_numpy(train_unlabeled_targets), \
+           torch.from_numpy(validation_images), torch.from_numpy(validation_targets)
