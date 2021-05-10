@@ -3,8 +3,6 @@ from torchvision import datasets, transforms
 import matplotlib.pyplot as plt
 import numpy as np
 
-import data
-
 
 def displayImages(images, title="", labels=None, augmented_images=None):
     class_names = ['airplane', 'automobile', 'bird', 'cat', 'deer',
@@ -36,31 +34,35 @@ def displayImages(images, title="", labels=None, augmented_images=None):
 
 
 def random_flip(x):
-    if np.random.rand() < 0.5:
-        x = x[:, :, ::-1]
+    if np.random.rand() < 0.6:
+        x = x[:, ::-1, :]
     return x.copy()
 
 
 def pad(x, border=4):
-    return np.pad(x, [(0, 0), (border, border), (border, border), (0, 0)], mode='reflect')
+    return np.pad(x, [(border, border), (border, border), (0, 0)], mode='reflect')
 
 
 def pad_and_crop(x, output_size=(32,32)):
     x = pad(x, 4)
-    h, w, _ = x.shape[1:]
+    h, w = x.shape[:-1]
     new_h, new_w = output_size
 
     top = np.random.randint(0, h - new_h)
     left = np.random.randint(0, w - new_w)
 
-    x = x[:, top: top + new_h, left: left + new_w, :]
+    x = x[top: top + new_h, left: left + new_w, :]
 
     return x
 
 
-def augment(x, K=1):
-    x = pad_and_crop(x)
-    return random_flip(x)
+def augment(X, K=1):
+    augmented_x = X.copy()
+    for i in range(X.shape[0]):
+        x = X[i, :]
+        x = pad_and_crop(x)
+        augmented_x[i, :] = random_flip(x)
+    return augmented_x
 
 
 # Test the augment function
