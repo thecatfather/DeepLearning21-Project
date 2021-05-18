@@ -170,7 +170,7 @@ def load_and_augment_data(dataset_name, model_params):
     #               augmented_images=augmented_unlabeled_X[n_unlabeled:10+n_unlabeled],
     #               labels=train_unlabeled_targets[:10])
 
-    # Step 7: Change the dimension of np.array in oder for it to work in torch
+    # Step 7: Change the dimension of np.array in oder for it to work with torch
     augmented_labeled_X = to_tensor_dim(augmented_labeled_X)
     augmented_unlabeled_X = to_tensor_dim(augmented_unlabeled_X)
     validation_images = to_tensor_dim(validation_images)
